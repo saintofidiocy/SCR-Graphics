@@ -1,0 +1,39 @@
+// Taken from heat_distortion.glsl, util_scale.glsl
+
+//in vec2 texCoord;
+//in vec2 mapCoord;
+
+uniform vec2 invResolution;
+uniform vec4 data;
+
+uniform sampler2D spriteTex;
+uniform sampler2D sampleTex; // Noise texture
+
+#define PI (3.14)
+
+void main()
+{
+    float time = data.z;
+
+    vec2 noiseUV = vec2(mapCoord.x, mapCoord.y + (time / 10.0));
+    noiseUV.x = noiseUV.x + (cos(time/10.0) * 0.3);
+    vec4 noise = texture2D(sampleTex, noiseUV);
+    vec4 baseColor = texture2D(spriteTex, gl_TexCoord[0].xy);
+
+    vec2 sOffset;
+    sOffset.x = cos(noise.r * PI + time * 0.5) * 1.9;
+    sOffset.y = sin(noise.g * PI + time * 0.5) * 0.5;
+    sOffset *= invResolution;
+
+    float redBleed = 1.2;
+    vec2 uv = texCoord + sOffset;
+    vec4 offsetColor = texture2D(spriteTex, uv);
+    float intensity = min((offsetColor.r * redBleed) * 2.0, 1);
+
+    // Below 0.2 in the red channel gets no distortion
+    intensity *= mix(offsetColor.a, 0, step(offsetColor.r, 0.2)); // Mask is in the alpha channel
+
+    gl_FragColor.rgb = mix(baseColor.rgb, offsetColor.rgb, intensity);
+    gl_FragColor.a = 1.0;
+}
+

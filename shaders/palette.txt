@@ -1,0 +1,29 @@
+// taken from palette_color_frag.glsl
+
+
+uniform sampler2D spriteTex;
+uniform sampler2D sampleTex; // palette
+
+uniform vec4 multiplyColor;
+
+void main()
+{
+    float kEpsilon = 0.0000046039;
+
+    // retrieve palette index
+    float palIdx = texture2D(spriteTex, gl_TexCoord[0].xy).r;
+
+    palIdx -= kEpsilon;
+    if (palIdx < 0.0)
+        discard;
+
+    vec2 index = vec2(palIdx, 0.0);
+
+    // do palette lookup
+    gl_FragColor.rgb = texture2D(sampleTex, index).rgb;
+    gl_FragColor.a = 1.0;
+
+    gl_FragColor = gl_FragColor * multiplyColor;
+    //frag_effect = vec4(0.0, 0.0, 0.0, 1.0);
+}
+

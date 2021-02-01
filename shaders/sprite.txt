@@ -1,0 +1,45 @@
+// taken from sprite_frag.glsl, util_team_color.glsl, util_hallucinate.glsl
+
+
+uniform sampler2D spriteTex;
+uniform sampler2D teamcolorTex;
+
+uniform float hallucinate;
+uniform vec4 multiplyColor;
+uniform vec4 teamColor;
+
+
+
+vec3 TeamColor(vec3 sourceColor, vec3 tc, float mask)
+{
+    // Team Colors
+    // Expecting mask values to be 0 or 1
+    vec3 spriteTeamColor = sourceColor * tc;
+    return mix(sourceColor, spriteTeamColor, mask);
+}
+
+
+vec3 HallucinationColor(vec3 blendTarget, vec3 sourceColor, float halT)
+{
+    // hallucination effect
+    float b = dot(sourceColor, vec3(0.30196078, 0.59215686, 0.10980392));
+    vec3 hallucinateColor = vec3(0.75, 1.125, 2.65) * b;
+    return mix(blendTarget, hallucinateColor, halT);
+}
+
+
+
+void main() {
+    vec4 spriteColor = texture2D(spriteTex, gl_TexCoord[0].xy);
+    float mask_value = texture2D(teamcolorTex, gl_TexCoord[0].xy).r;
+    
+    // overwrite cloak/emp/shadow information
+    //frag_effect = vec4(vec3(0), spriteColor.a);
+    
+    spriteColor.rgb = TeamColor(spriteColor.rgb, teamColor.rgb, mask_value);
+    
+    spriteColor *= multiplyColor;
+    
+    // hallucination effect
+    gl_FragColor = vec4(HallucinationColor(spriteColor.rgb, spriteColor.rgb, hallucinate), spriteColor.a);
+}
