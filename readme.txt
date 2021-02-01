@@ -1,6 +1,6 @@
 StarCraft: Remastered Graphics
 
-This is currently kind of a mess and probably far from an ideal implementation, but it should hopefully provide functional sample code for reading and displaying HD graphics.
+This is currently kind of a mess and probably far from an ideal implementation. It should hopefully provide functional sample code for reading and displaying HD graphics, as well as better documentation for the .anim and .dds.grp graphics files.
 
 Command line options:
 scrg [-w #] [-h #] [-t #] [-s name] [-c] ["path to raw chk map file"]
